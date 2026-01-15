@@ -1,0 +1,51 @@
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import { ConnectMongoDB } from "./Utils/mongodb.js";
+import URLRoutes from "./Routes/urls.js";
+import { RedirectURL } from "./Controllers/RedirectURL.js";
+import mongoose from "mongoose";
+
+dotenv.config();
+
+const app = express();
+
+// Middlewares
+app.use(cors());
+app.use(express.json());
+
+// Request Logging
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
+
+// Connect DB
+ConnectMongoDB();
+
+// Health Check
+app.get("/health", (req, res) => {
+  const dbStatus = mongoose.connection.readyState === 1 ? "connected" : "disconnected";
+  res.json({ 
+    status: "ok", 
+    database: dbStatus,
+    version: "1.0.1"
+  });
+});
+
+// Routes
+app.get("/:shortId", RedirectURL);
+app.use("/url", URLRoutes);
+
+// Error Handling
+app.use((err, req, res, next) => {
+  console.error("Global Error Handler:", err);
+  res.status(500).json({ message: "Internal Server Error", error: err.message });
+});
+
+// Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server ready at http://localhost:${PORT}`);
+});
+
