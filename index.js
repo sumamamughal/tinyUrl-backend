@@ -24,7 +24,10 @@ app.use((req, res, next) => {
 });
 
 // Connect DB
-ConnectMongoDB();
+app.use(async (req, res, next) => {
+  await ConnectMongoDB();
+  next();
+});
 
 // Health Check
 app.get("/health", (req, res) => {
