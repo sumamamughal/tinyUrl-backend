@@ -33,6 +33,18 @@ app.get("/health", (req, res) => {
   });
 });
 
+// Root route
+app.get("/", (req, res) => {
+  res.json({ 
+    message: "🔗 TinyURL API is running!",
+    endpoints: {
+      shorten: "POST /url/shorten",
+      redirect: "GET /:shortId",
+      health: "GET /health"
+    }
+  });
+});
+
 // Routes
 app.get("/:shortId", RedirectURL);
 app.use("/url", URLRoutes);
