@@ -25,8 +25,13 @@ app.use((req, res, next) => {
 
 // Connect DB
 app.use(async (req, res, next) => {
-  await ConnectMongoDB();
-  next();
+  try {
+    await ConnectMongoDB();
+    next();
+  } catch (error) {
+    console.error("DB connection error:", error.message);
+    res.status(503).json({ message: "Database unavailable", error: error.message });
+  }
 });
 
 // Health Check
